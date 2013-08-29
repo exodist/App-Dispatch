@@ -2,12 +2,12 @@ package App::Dispatch;
 use strict;
 use warnings;
 
-our $VERSION = '0.003';
+our $VERSION = '0.004';
 
 # NOTE:
-# All code is located in bin/dispatch.pl. No code is here, this is to hep with
+# All code is located in bin/dispatch.pl. No code is here, this is to help with
 # portability, and to allow use of dispatch.pl in any perl installed to the
-# system.
+# system even ones other than the one to which it was installed.
 
 1;
 
@@ -21,26 +21,51 @@ App::Dispatch - Tool to have #! dispatch to the best executable for the job.
 
 =head1 DESCRIPTION
 
+App::Dispatch is an alternative to C</usr/bin/env>. Unlike C</usr/bin/env>, it
+does not rely on your environment to tell it which program to use. You can set
+system-wide, and user level configurations for which program to use. You can
+also specify a cascade of aliases and/or paths to search.
+
 Lately it has been a trend to avoid the system install of programming
 languages, Perl, Ruby, Python, etc, in most cases it is recommended that you do
-not use the system perl. A result of this is heavy use of C<#!/usr/bin/env> to
-lookup the correct binary to execute based on your C<$PATH>. Sometimes though
-you cannot control your environment as well as you would like. You cannot
-always be sure that the binary in C<$PATH> is the one you want.
+not use the system installation of the language. A result of this is heavy use
+of C<#!/usr/bin/env> to lookup the correct binary to execute based on your
+C<$PATH>. The problem with C</usr/bin/env> is that you may not always have
+control over the environment. For example if you have a script that you must
+run with sudo, your C<$PATH> will be reset.
 
-App::Dispatch solves the same problem as C</usr/bin/env>, but in a way that
-gives you more control. With App::Dispatch you put a configuration file in /etc
-(and optionally your home directory) which allows you provide aliases to
-specific binaries. In your #! line you specify which program, and a cascade of
-aliases to try. If the alias(es) you do not want are missing, or the program is
-missing altogether, it will result in an error.
-
-App::Dispatch also has 2 special aliases 'SYSTEM' which should be used to
-specify which binary is used by the system, and 'DEFAULT' which should be used
-when none is specified. In this way you can have system tools with a #! line
-that is very clear on which binary should run it.
+With App::Dispatch you can specify multiple locations to try when looking for
+the program. You can also configure aliases at the system or user level. This
+is useful when you have multiple versions of the program installed and wish
+different things to use different ones by a label. In this way the versions
+need not be in the same location on each machine that can run the script.
 
 =head1 SYNOPSYS
+
+=head2 NO CONFIG
+
+The following #! line will cause the script to be run by perl, it will try each
+path listed in order.
+
+    #!/usr/local/bin/dispatch perl /path/to/perl /alternate/path/to/perl /another/perl
+
+This tells the script to use the specified path if available, otherwise fall
+back to whichever perl is in the environment.
+
+    #!/usr/local/bin/dispatch perl /path/to/perl ENV
+
+You can also pass arguments to the program by putting them after C<-->:
+
+    #!/usr/local/bin/dispatch perl /path/to/perl ENV -- -w
+
+=head2 WITH CONFIG
+
+$HOME/.dispatch.conf:
+
+    [perl]
+        SYSTEM     = /usr/bin/perl
+        DEFAULT    = /opt/ACME/current/bin/perl
+        production = /opt/ACME/stable/bin/perl
 
 This #! line will run perl, it will find the 'production' perl, if no
 production perl is found it will try 'DEFAULT'. Anything after the -- is passed

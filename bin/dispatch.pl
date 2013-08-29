@@ -91,15 +91,38 @@ BEGIN {
 
         @cascade = ( 'DEFAULT', 'SYSTEM' ) unless @cascade;
 
-        my $conf = $self->programs->{$program} || die "No program '$program' configured\n";
+        my $conf = $self->programs->{$program} || {};
 
-        for my $alias (@cascade) {
-            next unless $conf->{$alias};
-            next unless -x $conf->{$alias};
-            exec( $conf->{$alias}, @argv );
+        my $run;
+        for my $item (@cascade) {
+            if ( $item eq 'ENV' ) {
+                $run = $program;
+            }
+            elsif ( my $alias = $conf->{$item} ) {
+                next unless -x $alias;
+                $run = $alias;
+            }
+            elsif ( -x $item ) {
+                $run = $item;
+            }
+        }
+        exec( $run, @argv ) if $run;
+
+        print STDERR "Could not find valid '$program' to run.\n";
+        print STDERR "Searched: " . join( ', ', @cascade ) . "\n";
+        print STDERR "'$program' config: ";
+        if ( keys %$conf ) {
+            print "\n";
+            for my $alias ( keys %$conf ) {
+                print STDERR "  $alias = $conf->{$alias}\n";
+            }
+        }
+        else {
+            print STDERR "No config for '$program'\n";
         }
 
-        die "Could not find path for any alias: " . join( ', ', @cascade ) . "\n";
+        print STDERR "\n";
+        exit 1;
     }
 
     sub debug {
