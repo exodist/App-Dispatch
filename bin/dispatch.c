@@ -5,8 +5,8 @@
 #include <string.h>
 
 int main(int argc, char* argv[]) {
-    execvp( "dispatch.pl", argv );
-    printf( "Could not exec 'dispatch.pl': %s\n", strerror(errno) );
+    execvp( "app_dispatch", argv );
+    printf( "Could not exec 'app_dispatch': %s\n", strerror(errno) );
     exit(errno);
 }
 

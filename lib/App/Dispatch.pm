@@ -2,10 +2,10 @@ package App::Dispatch;
 use strict;
 use warnings;
 
-our $VERSION = '0.005';
+our $VERSION = '0.006';
 
 # NOTE:
-# All code is located in bin/dispatch.pl. No code is here, this is to help with
+# All code is located in bin/app_dispatch. No code is here, this is to help with
 # portability, and to allow use of dispatch.pl in any perl installed to the
 # system even ones other than the one to which it was installed.
 

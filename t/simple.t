@@ -5,7 +5,7 @@ use warnings;
 use Test::More;
 
 eval {
-    for my $path ( 'bin/dispatch.pl', '../bin/dispatch.pl', 'dispatch.pl' ) {
+    for my $path ( 'bin/app_dispatch', '../bin/app_dispatch', 'app_dispatch' ) {
         next unless -e $path;
         do $path;
         last;

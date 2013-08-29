@@ -22,8 +22,8 @@ my $builder = MyBuild->new(
     },
 
     script_files => [
-        'bin/dispatch.pl',
         'bin/dispatch',
+        'bin/app_dispatch',
     ],
 
     meta_merge => {
