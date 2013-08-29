@@ -12,7 +12,6 @@ my $builder = MyBuild->new(
     dist_author => 'Chad Granum <exodist7@gmail.com>',
 
     create_readme  => 1,
-    create_license => 1,
 
     build_requires => {
         'Test::Simple' => 0.88,
@@ -21,6 +20,11 @@ my $builder = MyBuild->new(
     configure_requires => {
         "Module::Build" => '0.36',
     },
+
+    script_files => [
+        'bin/dispatch.pl',
+        'bin/dispatch',
+    ],
 
     meta_merge => {
         resources => {

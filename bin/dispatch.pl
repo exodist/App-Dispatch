@@ -2,24 +2,39 @@
 use strict;
 use warnings;
 
-App::Dispatch->new->dispatch(@ARGV);
+App::Dispatch->new(
+    "/etc/dispatch.conf",
+    "$ENV{HOME}/.dispatch.conf",
+)->dispatch(@ARGV);
 
 BEGIN {
 
     package App::Dispatch;
 
+    sub programs { shift->{programs} }
+    sub config   { shift->{config} }
+
     sub new {
         my $class = shift;
-        my $self = bless {} => $class;
-        $self->read_config("/etc/dispatch.conf");
-        $self->read_config("$ENV{HOME}/.dispatch.conf");
+
+        my $self = bless {
+            config   => {},
+            programs => {},
+        } => $class;
+
+        $self->read_config($_) for @_;
+
         return $self;
     }
 
     sub read_config {
         my $self = shift;
         my ($file) = @_;
-        return unless -e $file;
+        unless ( -e $file ) {
+            $self->config->{$file} = "No such file: '$file'.";
+            return;
+        }
+        $self->config->{$file} = 1;
 
         open( my $fh, '<', $file ) || die "Failed to open '$file': $!\n";
 
@@ -41,7 +56,7 @@ BEGIN {
             }
 
             if ( $line =~ m/^\s*([a-zA-Z0-9_]+)\s*=\s*(\S+)\s*$/ ) {
-                $self->{$program}->{$1} = $2;
+                $self->programs->{$program}->{$1} = $2;
                 next unless $1 eq 'SYSTEM' && $file ne '/etc/dispatch.conf';
                 die "SYSTEM alias can only be specified in /etc/dispatch.conf.\n";
             }
@@ -56,6 +71,10 @@ BEGIN {
         my $self = shift;
         my ( $program, @argv ) = @_;
 
+        return $self->debug if $program eq 'DEBUG';
+
+        die "No program specified\n" unless $program;
+
         my @cascade;
 
         push @cascade => shift @argv while @argv && $argv[0] ne '--';
@@ -63,15 +82,20 @@ BEGIN {
 
         @cascade = ( 'DEFAULT', 'SYSTEM' ) unless @cascade;
 
-        my $conf = $self->{$program} || die "No program '$program' configured\n";
+        my $conf = $self->programs->{$program} || die "No program '$program' configured\n";
 
         for my $alias (@cascade) {
+            next unless $conf->{$alias};
             next unless -x $conf->{$alias};
             exec( $conf->{$alias}, @argv );
         }
 
         die "Could not find path for any alias: " . join( ', ', @cascade ) . "\n";
     }
-}
 
-1;
+    sub debug {
+        my $self = shift;
+        require Data::Dumper;
+        print Data::Dumper::Dumper($self);
+    }
+}

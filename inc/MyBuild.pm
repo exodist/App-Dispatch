@@ -16,8 +16,6 @@ sub ACTION_code {
         );
         my $exe_file = $b->link_executable( objects => $obj_file );
 
-        $self->script_files($exe_file);
-
         $self->add_to_cleanup( $obj_file, $exe_file );
     }
     else {
