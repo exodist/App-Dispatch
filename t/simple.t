@@ -14,7 +14,7 @@ eval {
 
 can_ok( 'App::Dispatch', 'new' );
 
-my $one = App::Dispatch->new( 't/sample.conf', 'sample.conf' );
+my $one = App::Dispatch->new( 't/sample', 'sample' );
 
 is_deeply(
     $one->programs,

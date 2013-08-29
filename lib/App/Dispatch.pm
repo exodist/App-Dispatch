@@ -2,7 +2,7 @@ package App::Dispatch;
 use strict;
 use warnings;
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 # NOTE:
 # All code is located in bin/dispatch.pl. No code is here, this is to hep with
@@ -56,11 +56,19 @@ This will run the default perl.
 
 =head2 LOCATIONS
 
+Locations are loaded in this order. All locations that exist are loaded. Later
+files can override earlier ones.
+
 =over 4
 
 =item /etc/dispatch.conf
 
 The system wide configuration
+
+=item /etc/dispatch/*
+
+System wide config dir, to have app specific config files for easier management
+with system packages.
 
 =item $HOME/.dispatch.conf
 

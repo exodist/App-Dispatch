@@ -4,6 +4,7 @@ use warnings;
 
 App::Dispatch->new(
     "/etc/dispatch.conf",
+    "/etc/dispatch",
     "$ENV{HOME}/.dispatch.conf",
 )->dispatch(@ARGV);
 
@@ -31,10 +32,17 @@ BEGIN {
         my $self = shift;
         my ($file) = @_;
         unless ( -e $file ) {
-            $self->config->{$file} = "No such file: '$file'.";
+            $self->config->{$file} = "No such file or directory: '$file'.";
             return;
         }
         $self->config->{$file} = 1;
+
+        if ( -d $file ) {
+            opendir( my $dir, $file ) || die "Failed to open '$file': $!\n";
+            $self->read_config("$file/$_") for sort grep { $_ !~ m/^\./ } readdir($dir);
+            close($dir);
+            return;
+        }
 
         open( my $fh, '<', $file ) || die "Failed to open '$file': $!\n";
 
@@ -48,6 +56,7 @@ BEGIN {
 
             if ( $line =~ m/^\s*\[([a-zA-Z0-9_]+)\]\s*$/i ) {
                 $program = $1;
+                $self->programs->{$program} ||= {};
                 next;
             }
 
@@ -71,9 +80,9 @@ BEGIN {
         my $self = shift;
         my ( $program, @argv ) = @_;
 
-        return $self->debug if $program eq 'DEBUG';
-
         die "No program specified\n" unless $program;
+
+        return $self->debug if $program eq 'DEBUG';
 
         my @cascade;
 

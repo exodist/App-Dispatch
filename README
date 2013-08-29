@@ -37,8 +37,15 @@ SYNOPSYS
 
 CONFIG FILES
   LOCATIONS
+    Locations are loaded in this order. All locations that exist are loaded.
+    Later files can override earlier ones.
+
     /etc/dispatch.conf
         The system wide configuration
+
+    /etc/dispatch/*
+        System wide config dir, to have app specific config files for easier
+        management with system packages.
 
     $HOME/.dispatch.conf
         User specific overrides or additions.
