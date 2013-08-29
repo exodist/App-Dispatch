@@ -2,7 +2,7 @@ package App::Dispatch;
 use strict;
 use warnings;
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 
 # NOTE:
 # All code is located in bin/dispatch.pl. No code is here, this is to hep with
