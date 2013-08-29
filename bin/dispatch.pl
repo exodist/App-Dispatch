@@ -2,11 +2,15 @@
 use strict;
 use warnings;
 
-App::Dispatch->new(
+my @paths = (
     "/etc/dispatch.conf",
     "/etc/dispatch",
-    "$ENV{HOME}/.dispatch.conf",
-)->dispatch(@ARGV);
+);
+
+push @paths => "$ENV{HOME}/.dispatch.conf"
+    unless $ENV{SUDO_USER} || $ENV{USER} eq 'root';
+
+App::Dispatch->new(@paths)->dispatch(@ARGV);
 
 BEGIN {
 
