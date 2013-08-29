@@ -12,8 +12,6 @@ int main(int argc, char* argv[]) {
     }
     newargv[argc] = NULL;
 
-    newargv[0] = "dispatch.pl";
-
     execvp( "dispatch.pl", newargv );
 
     printf( "Could not exec! %s\n", strerror(errno) );
